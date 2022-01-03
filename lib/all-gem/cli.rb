@@ -9,7 +9,7 @@ module AllGem
     end
 
     def run
-      # TODO
+      1
     end
   end
 end
