@@ -1,8 +1,8 @@
 # all-gem
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/all/gem`. To experiment with that code, run `bin/console` for an interactive prompt.
+all-gem runs various versions of command provided by gem.
 
-TODO: Delete this and the text above, and describe your gem
+It was inspired by [all-ruby](https://github.com/akr/all-ruby).
 
 ## Installation
 
@@ -22,7 +22,21 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
+Example:
+
+```bash
+# Execute `rbs --version` command with all installed versions of rbs gem
+$ all-gem rbs --version
+
+# Execute `rbs --version` command with all versions of rbs gem
+# It installs gems before execution if it is not installed
+$ all-gem --remote rbs --version
+
+# Execute `rbs --version` command with all latest major versions of rbs gem
+$ all-gem --remote --major rbs --version
+```
+
+See the result of `all-gem help`
 
 ## Development
 
