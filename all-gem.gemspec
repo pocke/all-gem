@@ -7,6 +7,7 @@ Gem::Specification.new do |spec|
   spec.version = AllGem::VERSION
   spec.authors = ["Masataka Pocke Kuwabara"]
   spec.email = ["kuwabara@pocke.me"]
+  spec.license = 'MIT'
 
   spec.summary = "Run various versions of command provided by gem"
   spec.description = "Run various versions of command provided by gem"
