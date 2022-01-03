@@ -29,5 +29,9 @@ module AllGem
     def gemspec_from_command: (String command) -> Gem::Specification
 
     def versions_of: (Gem::Specification, Options) -> Array[Gem::Version]
+
+    def local_versions: (Gem::Specification) -> Array[Gem::Version]
+
+    def remote_versions: (Gem::Specification) -> Array[Gem::Version]
   end
 end

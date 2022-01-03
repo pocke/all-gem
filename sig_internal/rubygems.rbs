@@ -1,11 +1,29 @@
-class Gem::Specification < Gem::BasicSpecification
-  extend Enumerable[Gem::Specification]
+module Gem
+  class Specification < BasicSpecification
+    extend Enumerable[Specification]
 
-  attr_reader name: String
-  attr_reader version: Gem::Version
+    attr_reader name: String
+    attr_reader version: Version
 
-  def self.each: () -> Enumerator[Gem::Specification, Array[Gem::Specification]]
-          | () { (Gem::Specification) -> void } -> Array[Gem::Specification]
+    def self.each: () -> Enumerator[Specification, Array[Specification]]
+            | () { (Specification) -> void } -> Array[Specification]
 
-  def executables: () -> Array[String]
+    def executables: () -> Array[String]
+  end
+
+  class NameTuple
+    attr_reader name: String
+    attr_reader version: Version
+  end
+
+  class Source
+  end
+
+  class SpecFetcher
+    def self.fetcher: () -> instance
+
+    type specs_type = :complete | :released | :prerelease | :latest
+
+    def detect: (specs_type) { (NameTuple) -> boolish } -> Array[[NameTuple, Source]]
+  end
 end
