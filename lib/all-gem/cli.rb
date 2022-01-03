@@ -32,7 +32,7 @@ module AllGem
     def run(argv)
       opt = Options.new
       o = OptionParser.new
-      o.on('--remote') { opt.remote = true } # TODO
+      o.on('--remote') { opt.remote = true }
       o.on('--since SINCE') { |v| opt.since = Gem::Version.new(v) }
       o.on('--major') { opt.level = :major } # TODO
       o.on('--minor') { opt.level = :minor }
