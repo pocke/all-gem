@@ -1,0 +1,4 @@
+#!ruby
+
+require 'all-gem'
+exit AllGem::CLI.run(stdout: $stdout, stderr: $stderr, stdin: $stdin)
