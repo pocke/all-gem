@@ -8,3 +8,5 @@ gemspec
 gem "rake"
 gem 'steep'
 gem 'activesupport', '< 7' # https://github.com/soutaro/steep/issues/466
+
+gem 'test-unit'
