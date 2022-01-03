@@ -34,7 +34,7 @@ module AllGem
       o = OptionParser.new
       o.on('--remote') { opt.remote = true }
       o.on('--since SINCE') { |v| opt.since = Gem::Version.new(v) }
-      o.on('--major') { opt.level = :major } # TODO
+      o.on('--major') { opt.level = :major }
       o.on('--minor') { opt.level = :minor }
       o.on('--patch') { opt.level = :patch }
       # o.on('--dir') # TODO: consider the API, make and cd to a directory
@@ -45,6 +45,7 @@ module AllGem
       spec = gemspec_from_command(command)
 
       versions = versions_of(spec, opt)
+      versions = filter_by_level(versions, opt)
       install! spec, versions
 
       # TODO: omit the same output
@@ -95,7 +96,16 @@ module AllGem
       installed = local_versions(spec)
 
       targets = (versions - installed).map { |v| "#{spec.name}:#{v}" }
+      return if targets.empty?
+
       __skip__ = system('gem', 'install', *targets, exception: true)
+    end
+
+    def filter_by_level(versions, opt)
+      return versions if opt.level == :all
+
+      n = { major: 0, minor: 1, patch: 2 }[opt.level]
+      versions.group_by { |v| v.segments[0..n] }.map { |_, vs| vs.max or raise }
     end
   end
 end
