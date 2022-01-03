@@ -2,12 +2,20 @@ module AllGem
   VERSION: String
 
   class CLI
+    class Error < StandardError
+      attr_reader status: Integer
+
+      def initialize: (String message, ?Integer status) -> void
+    end
+
     attr_reader stdout: IO
     attr_reader sderr: IO
     attr_reader sdin: IO
 
     def initialize: (stdout: IO, stderr: IO, stdin: IO) -> void
 
-    def run: () -> Integer
+    def run: (Array[String]) -> void
+
+    def help: () -> String
   end
 end

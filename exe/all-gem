@@ -1,4 +1,10 @@
 #!ruby
 
 require 'all-gem'
-exit AllGem::CLI.new(stdout: $stdout, stderr: $stderr, stdin: $stdin).run
+
+begin
+  AllGem::CLI.new(stdout: $stdout, stderr: $stderr, stdin: $stdin).run(ARGV)
+rescue AllGem::CLI::Error => ex
+  $stderr.puts ex.message
+  exit ex.status
+end
