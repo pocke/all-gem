@@ -56,7 +56,7 @@ module AllGem
       @op = OptionParser.new
 
       op.banner = <<~BANNER
-        Usage: all-ruby [all-ruby options] COMMAND [command options]
+        Usage: all-gem [all-gem options] COMMAND [command options]
       BANNER
 
       op.on('--remote', 'Install the gems if it does not exist in the local') { opts.remote = true }
