@@ -95,7 +95,7 @@ module AllGem
       installed = local_versions(spec)
 
       targets = (versions - installed).map { |v| "#{spec.name}:#{v}" }
-      system('gem', 'install', *targets, exception: true)
+      __skip__ = system('gem', 'install', *targets, exception: true)
     end
   end
 end
