@@ -21,31 +21,24 @@ module AllGem
       end
     end
 
-    attr_reader :stdout, :stderr, :stdin
+    attr_reader :stdout, :stderr, :stdin, :op, :opts
 
     def initialize(stdout:, stderr:, stdin:)
       @stdout = stdout
       @stderr = stderr
       @stdin = stdin
+
+      set_optparse
     end
 
     def run(argv)
-      opt = Options.new
-      o = OptionParser.new
-      o.on('--remote') { opt.remote = true }
-      o.on('--since SINCE') { |v| opt.since = Gem::Version.new(v) }
-      o.on('--major') { opt.level = :major }
-      o.on('--minor') { opt.level = :minor }
-      o.on('--patch') { opt.level = :patch }
-      # o.on('--dir') # TODO: consider the API, make and cd to a directory
-      # o.on('--pre') # TODO: consider the API
-      argv = o.order(argv)
+      argv = @op.order(argv)
 
-      command = argv[0] or raise Error.new(help)
+      command = argv[0] or raise Error.new("COMMAND is not specified.\n\n" + op.help)
       spec = gemspec_from_command(command)
 
-      versions = versions_of(spec, opt)
-      versions = filter_by_level(versions, opt)
+      versions = versions_of(spec, opts)
+      versions = filter_by_level(versions, opts)
       install! spec, versions
 
       # TODO: omit the same output
@@ -58,10 +51,22 @@ module AllGem
 
     private
 
-    def help
-      <<~HELP
-        Usage: all-ruby [all-ruby options] COMMAND_NAME [command options]
-      HELP
+    def set_optparse
+      @opts = Options.new
+      @op = OptionParser.new
+
+      op.banner = <<~BANNER
+        Usage: all-ruby [all-ruby options] COMMAND [command options]
+      BANNER
+
+      op.on('--remote', 'Install the gems if it does not exist in the local') { opts.remote = true }
+      op.on('--since VERSION', 'Run only versions since specified one') { |v| opts.since = Gem::Version.new(v) }
+      op.on('--major', 'Run only each major version') { opts.level = :major }
+      op.on('--minor', 'Run only each minor version') { opts.level = :minor }
+      op.on('--patch', 'Run only each patch version') { opts.level = :patch }
+      op.on('--version', 'Display all-ruby version') { stdout.puts "all-gem-#{AllGem::VERSION}"; exit 0 }
+      # op.on('--dir') # TODO: consider the API, make and cd to a directory
+      # op.on('--pre') # TODO: consider the API
     end
 
     def gemspec_from_command(command)
@@ -70,14 +75,14 @@ module AllGem
       spec or raise Error.new("Could not find #{command} as an executable file")
     end
 
-    def versions_of(spec, opt)
+    def versions_of(spec, opts)
       versions = local_versions(spec)
-      versions.concat remote_versions(spec) if opt.remote
+      versions.concat remote_versions(spec) if opts.remote
 
       versions.uniq!
       versions.sort!
 
-      since = opt.since
+      since = opts.since
       versions = versions.select { |v| since <= v } if since
 
       versions
@@ -101,10 +106,10 @@ module AllGem
       __skip__ = system('gem', 'install', *targets, exception: true)
     end
 
-    def filter_by_level(versions, opt)
-      return versions if opt.level == :all
+    def filter_by_level(versions, opts)
+      return versions if opts.level == :all
 
-      n = { major: 0, minor: 1, patch: 2 }[opt.level]
+      n = { major: 0, minor: 1, patch: 2 }[opts.level]
       versions.group_by { |v| v.segments[0..n] }.map { |_, vs| vs.max or raise }
     end
   end

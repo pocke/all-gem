@@ -16,13 +16,19 @@ module AllGem
 
     attr_reader stdout: IO
     attr_reader sderr: IO
-    attr_reader sdin: IO
+    attr_reader stdin: IO
+    attr_reader opts: Options
+    attr_reader op: OptionParser
+
+    @op: OptionParser
 
     def initialize: (stdout: IO, stderr: IO, stdin: IO) -> void
 
     def run: (Array[String]) -> void
 
     private
+
+    def set_optparse: () -> void
 
     def help: () -> String
 
