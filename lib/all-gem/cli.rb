@@ -69,10 +69,25 @@ module AllGem
     end
 
     def versions_of(spec, opt)
-      versions = Gem::Specification.select {|s| s.name == spec.name }.map { |s| s.version }.sort
+      versions = local_versions(spec)
+      versions.concat remote_versions(spec) if opt.remote
+
+      versions.uniq!
+      versions.sort!
+
       since = opt.since
       versions = versions.select { |v| since <= v } if since
+
       versions
+    end
+
+    def remote_versions(spec)
+      f = Gem::SpecFetcher.fetcher
+      f.detect(:released) { |tuple| tuple.name == spec.name }.map { |arr| arr[0].version }
+    end
+
+    def local_versions(spec)
+      Gem::Specification.select { |s| s.name == spec.name }.map { |s| s.version }
     end
   end
 end
