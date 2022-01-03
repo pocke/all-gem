@@ -8,6 +8,12 @@ module AllGem
       def initialize: (String message, ?Integer status) -> void
     end
 
+    class Options
+      attr_accessor remote: bool
+      attr_accessor since: Gem::Version?
+      attr_accessor level: :all | :major | :minor | :patch
+    end
+
     attr_reader stdout: IO
     attr_reader sderr: IO
     attr_reader sdin: IO
@@ -22,6 +28,6 @@ module AllGem
 
     def gemspec_from_command: (String command) -> Gem::Specification
 
-    def versions_of: (Gem::Specification) -> Array[Gem::Version]
+    def versions_of: (Gem::Specification, Options) -> Array[Gem::Version]
   end
 end
