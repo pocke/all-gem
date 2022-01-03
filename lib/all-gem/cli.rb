@@ -45,6 +45,7 @@ module AllGem
       spec = gemspec_from_command(command)
 
       versions = versions_of(spec, opt)
+      install! spec, versions
 
       # TODO: omit the same output
       # TODO: handle exit status
@@ -88,6 +89,13 @@ module AllGem
 
     def local_versions(spec)
       Gem::Specification.select { |s| s.name == spec.name }.map { |s| s.version }
+    end
+
+    def install!(spec, versions)
+      installed = local_versions(spec)
+
+      targets = (versions - installed).map { |v| "#{spec.name}:#{v}" }
+      system('gem', 'install', *targets, exception: true)
     end
   end
 end

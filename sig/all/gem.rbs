@@ -33,5 +33,7 @@ module AllGem
     def local_versions: (Gem::Specification) -> Array[Gem::Version]
 
     def remote_versions: (Gem::Specification) -> Array[Gem::Version]
+
+    def install!: (Gem::Specification, Array[Gem::Version]) -> void
   end
 end
