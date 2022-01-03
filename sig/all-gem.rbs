@@ -15,7 +15,7 @@ module AllGem
     end
 
     attr_reader stdout: IO
-    attr_reader sderr: IO
+    attr_reader stderr: IO
     attr_reader stdin: IO
     attr_reader opts: Options
     attr_reader op: OptionParser
