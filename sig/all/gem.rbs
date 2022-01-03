@@ -16,6 +16,12 @@ module AllGem
 
     def run: (Array[String]) -> void
 
+    private
+
     def help: () -> String
+
+    def gemspec_from_command: (String command) -> Gem::Specification
+
+    def versions_of: (Gem::Specification) -> Array[Gem::Version]
   end
 end

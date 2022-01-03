@@ -19,17 +19,36 @@ module AllGem
 
     def run(argv)
       # TODO: optparse
+      #       options candidates: --remote --since --major --minor --patch --dir
       command = argv[0] or raise Error.new(help)
+      spec = gemspec_from_command(command)
 
-      # TODO: find gem name from the command
-      # TODO: find all versions of the gem
-      # TODO: execute the command with each version
+      versions = versions_of(spec)
+
+      # TODO: omit the same output
+      versions.each do |v|
+        stdout.puts "#{command}-#{v}"
+        __skip__  = system(command, "_#{v}_", *argv[1..])
+      end
     end
+
+    private
 
     def help
       <<~HELP
         Usage: all-ruby [all-ruby options] COMMAND_NAME [command options]
       HELP
+    end
+
+    def gemspec_from_command(command)
+      spec = Gem::Specification.find { |s| s.executables.include?(command) }
+      # TODO: did you mean
+      spec or raise Error.new("Could not find #{command} as an executable file")
+    end
+
+    # TODO: be aware of remote gems
+    def versions_of(spec)
+      Gem::Specification.select {|s| s.name == spec.name }.map { |s| s.version }.sort
     end
   end
 end
