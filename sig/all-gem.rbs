@@ -43,5 +43,7 @@ module AllGem
     def install!: (Gem::Specification, Array[Gem::Version]) -> void
 
     def filter_by_level: (Array[Gem::Version], Options) -> Array[Gem::Version]
+
+    def no_bundler: [T] () { () -> T } -> T
   end
 end

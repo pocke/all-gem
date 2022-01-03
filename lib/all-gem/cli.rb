@@ -45,7 +45,9 @@ module AllGem
       # TODO: handle exit status
       versions.each do |v|
         stdout.puts "#{command}-#{v}"
-        __skip__  = system(command, "_#{v}_", *argv[1..])
+        no_bundler do
+          __skip__  = system(command, "_#{v}_", *argv[1..])
+        end
       end
     end
 
@@ -103,7 +105,9 @@ module AllGem
       targets = (versions - installed).map { |v| "#{spec.name}:#{v}" }
       return if targets.empty?
 
-      __skip__ = system('gem', 'install', *targets, exception: true)
+      no_bundler do
+        __skip__ = system('gem', 'install', *targets, '--conservative', exception: true)
+      end
     end
 
     def filter_by_level(versions, opts)
@@ -111,6 +115,16 @@ module AllGem
 
       n = { major: 0, minor: 1, patch: 2 }[opts.level]
       versions.group_by { |v| v.segments[0..n] }.map { |_, vs| vs.max or raise }
+    end
+
+    def no_bundler(&block)
+      if defined?(Bundler)
+        Bundler.with_unbundled_env do
+          block.call
+        end
+      else
+        block.call
+      end
     end
   end
 end
