@@ -1,4 +1,5 @@
 require 'optparse'
+require 'open3'
 
 module AllGem
   class CLI
@@ -41,12 +42,20 @@ module AllGem
       versions = filter_by_level(versions, opts)
       install! spec, versions
 
+      exit_status_indent = 8
+      longest_version = versions.max_by { |v| command.size + '-'.size + v.to_s.size } or raise
+      output_indent = command.size + '-'.size + longest_version.to_s.size + '   '.size
       # TODO: omit the same output
-      # TODO: handle exit status
       versions.each do |v|
-        stdout.puts "#{command}-#{v}"
+        label = "#{command}-#{v}"
+        stdout.print label
         no_bundler do
-          __skip__  = system(command, "_#{v}_", *argv[1..])
+          __skip__ = (output, status = Open3.capture2e(command, "_#{v}_", *argv[1..]))
+          lines = output.lines
+          stdout.puts "#{' ' * (output_indent - label.size)}#{lines[0]}"
+          stdout.puts lines[1..].map { |line| "#{' ' * output_indent}#{line}"}
+
+          stdout.puts "#{' ' * exit_status_indent}exit #{status.exitstatus}" unless status.success?
         end
       end
     end
