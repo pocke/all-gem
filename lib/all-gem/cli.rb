@@ -67,23 +67,46 @@ module AllGem
 
     def execute_and_print(argv, versions)
       command = argv[0]
+
+      # @type var prev: [String?, Process::Status?]
+      prev = [nil, nil]
+      prev_idx = -1
+      versions.each.with_index do |v, idx|
+        no_bundler do
+          output, status = Open3.capture2e(command, "_#{v}_", *(argv[1..] or raise))
+          if prev != [output, status]
+            if prev_idx != idx-1
+              print_result command, versions, idx-1, (prev[0] or raise), (prev[1] or raise)
+            end
+            print_result command, versions, idx, output, status
+
+            prev_idx = idx
+          else
+            stdout.puts '...' if prev_idx == idx-1
+          end
+
+          __skip__ = prev = [output, status]
+        end
+      end
+
+      if prev_idx != versions.size-1
+        print_result command, versions, versions.size-1, (prev[0] or raise), (prev[1] or raise)
+      end
+    end
+
+    def print_result(command, versions, idx, output, status)
       exit_status_indent = 8
       longest_version = versions.max_by { |v| command.size + '-'.size + v.to_s.size } or raise
       output_indent = command.size + '-'.size + longest_version.to_s.size + '   '.size
 
-      # TODO: omit the same output
-      versions.each do |v|
-        label = "#{command}-#{v}"
-        stdout.print label
-        no_bundler do
-          __skip__ = (output, status = Open3.capture2e(command, "_#{v}_", *argv[1..]))
-          lines = output.lines
-          stdout.puts "#{' ' * (output_indent - label.size)}#{lines[0]}"
-          stdout.puts lines[1..].map { |line| "#{' ' * output_indent}#{line}"}
+      version = versions[idx]
+      label = "#{command}-#{version}"
 
-          stdout.puts "#{' ' * exit_status_indent}exit #{status.exitstatus}" unless status.success?
-        end
-      end
+      stdout.print label
+      lines = output.lines
+      stdout.puts "#{' ' * (output_indent - label.size)}#{lines[0]}"
+      stdout.puts (lines[1..] or raise).map { |line| "#{' ' * output_indent}#{line}"}
+      stdout.puts "#{' ' * exit_status_indent}exit #{status.exitstatus}" unless status.success?
     end
 
     def gemspec_from_command(command)
