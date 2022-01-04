@@ -4,16 +4,17 @@ class AllGemCLITest < Test::Unit::TestCase
   def test_no_options
     cli = cli()
     cli.run(%w[rbs --version])
-    assert cli.stdout.string.include?('rbs-')
+    assert_match(/^rbs-[\w.]+\s+/, cli.stdout.string)
     assert cli.stderr.string.empty?
   end
 
   def test_major_option
     cli = cli()
     cli.run(%w[--major --remote rbs --version])
-    assert cli.stdout.string.include?('rbs-0')
-    assert cli.stdout.string.include?('rbs-1')
-    assert cli.stdout.string.include?('rbs-2')
+    assert_equal ['rbs-0'], cli.stdout.string.scan(/^rbs-0/)
+    assert_equal ['rbs-1'], cli.stdout.string.scan(/^rbs-1/)
+    assert_equal ['rbs-2'], cli.stdout.string.scan(/^rbs-2/)
+
     refute cli.stdout.string.include?('rbs-0.20.0')
     refute cli.stdout.string.include?('rbs-1.6.1')
 
