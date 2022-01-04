@@ -42,22 +42,7 @@ module AllGem
       versions = filter_by_level(versions, opts)
       install! spec, versions
 
-      exit_status_indent = 8
-      longest_version = versions.max_by { |v| command.size + '-'.size + v.to_s.size } or raise
-      output_indent = command.size + '-'.size + longest_version.to_s.size + '   '.size
-      # TODO: omit the same output
-      versions.each do |v|
-        label = "#{command}-#{v}"
-        stdout.print label
-        no_bundler do
-          __skip__ = (output, status = Open3.capture2e(command, "_#{v}_", *argv[1..]))
-          lines = output.lines
-          stdout.puts "#{' ' * (output_indent - label.size)}#{lines[0]}"
-          stdout.puts lines[1..].map { |line| "#{' ' * output_indent}#{line}"}
-
-          stdout.puts "#{' ' * exit_status_indent}exit #{status.exitstatus}" unless status.success?
-        end
-      end
+      execute_and_print argv, versions
     end
 
     private
@@ -78,6 +63,27 @@ module AllGem
       op.on('--version', 'Display all-ruby version') { stdout.puts "all-gem-#{AllGem::VERSION}"; exit 0 }
       # op.on('--dir') # TODO: consider the API, make and cd to a directory
       # op.on('--pre') # TODO: consider the API
+    end
+
+    def execute_and_print(argv, versions)
+      command = argv[0]
+      exit_status_indent = 8
+      longest_version = versions.max_by { |v| command.size + '-'.size + v.to_s.size } or raise
+      output_indent = command.size + '-'.size + longest_version.to_s.size + '   '.size
+
+      # TODO: omit the same output
+      versions.each do |v|
+        label = "#{command}-#{v}"
+        stdout.print label
+        no_bundler do
+          __skip__ = (output, status = Open3.capture2e(command, "_#{v}_", *argv[1..]))
+          lines = output.lines
+          stdout.puts "#{' ' * (output_indent - label.size)}#{lines[0]}"
+          stdout.puts lines[1..].map { |line| "#{' ' * output_indent}#{line}"}
+
+          stdout.puts "#{' ' * exit_status_indent}exit #{status.exitstatus}" unless status.success?
+        end
+      end
     end
 
     def gemspec_from_command(command)
