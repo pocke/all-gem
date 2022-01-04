@@ -30,7 +30,9 @@ module AllGem
 
     def set_optparse: () -> void
 
-    def help: () -> String
+    def execute_and_print: (Array[String] argv, Array[Gem::Version]) -> void
+
+    def print_result: (String command, Array[Gem::Version], Integer index, String output, Process::Status) -> void
 
     def gemspec_from_command: (String command) -> Gem::Specification
 
